@@ -2,6 +2,8 @@ import pandas as pd
 import sys
 from tkinter import Tk, filedialog, messagebox
 from pathlib import Path
+#from transform import 
+from extract import OPEN
 
 # === Okno wyboru pliku ===
 root = Tk()
@@ -17,7 +19,6 @@ if not plik_wejsciowy:
     raise SystemExit("❌ Nie wybrano pliku")
 
 plik_wejsciowy = Path(plik_wejsciowy)
-
 plik_wyjsciowy = Path(r"Magazyn_wynik.xlsx")
 
 print("Wybrany plik:", plik_wejsciowy)
