@@ -2,52 +2,24 @@ import pandas as pd
 import sys
 from tkinter import Tk, filedialog, messagebox
 from pathlib import Path
-#from transform import 
-from extract import OPEN
+from transform import normalize_keys
+from extract import OPEN_file
 
-# === Okno wyboru pliku ===
-root = Tk()
-root.withdraw()  # nie pokazuje pustego okna
 
-# Ścieżki
-plik_wejsciowy = filedialog.askopenfilename(
-    title="Wybierz plik Excel",
-    filetypes=[("Pliki Excel", "*.xlsx *.xls")]
-)
 
-if not plik_wejsciowy:
-    raise SystemExit("❌ Nie wybrano pliku")
+wybrany_plik = OPEN_file()
 
-plik_wejsciowy = Path(plik_wejsciowy)
 plik_wyjsciowy = Path(r"Magazyn_wynik.xlsx")
 
-print("Wybrany plik:", plik_wejsciowy)
-
-df_plik_wejsciowy = pd.read_excel(plik_wejsciowy)
-
 wiersze_do_dodania = pd.read_excel
-
-df_arkusz2_zwroty_zrodlowy = pd.read_excel(plik_wejsciowy, sheet_name="Sprzedane i zwrócone")
-
-# Filtrujemy wiersze, które chcemy dodać
-wiersze_do_dodania = df_arkusz2_zwroty_zrodlowy[df_arkusz2_zwroty_zrodlowy.iloc[:, 1] == -1]
-wiersze_do_dodania.insert(6,"kolumna7", None)
-wiersze_do_dodania.insert(7,"kolumna8", None)
-wiersze_do_dodania.insert(8,"kolumna9", None)
-wiersze_do_dodania.insert(9,"kolumna10", None)
-wiersze_do_dodania.insert(10,"kolumna11", None)
-
 
 #print(wiersze_do_dodania)
 
 try:
-    # === Sprawdzenie pliku ===
-    if not plik_wejsciowy.exists():
-        raise FileNotFoundError(f"Brak pliku wejściowego: {plik_wejsciowy}")
-
+    
     # === Wczytanie arkuszy ===
-    df_magazyn = pd.read_excel(plik_wejsciowy, sheet_name="Magazyn")
-    df_sprzedaz = pd.read_excel(plik_wejsciowy, sheet_name="Sprzedane i zwrócone")
+    df_magazyn = pd.read_excel(wybrany_plik, sheet_name="Magazyn")
+    df_sprzedaz = pd.read_excel(wybrany_plik, sheet_name="Sprzedane i zwrócone")
 
     # === Kolumna Liczba ===
     if "Liczba" not in df_magazyn.columns:
@@ -56,9 +28,15 @@ try:
         df_magazyn["Liczba"] = ""
 
     # === Normalizacja kluczy ===
-    df_magazyn["Key"] = df_magazyn["Key"].astype(str).str.strip()
-    df_sprzedaz["Key"] = df_sprzedaz["Key"].astype(str).str.strip()
-
+    df_magazyn = normalize_keys(df_magazyn)
+    df_sprzedaz = normalize_keys(df_sprzedaz)
+    # Filtrujemy wiersze, które chcemy dodać
+    wiersze_do_dodania = df_sprzedaz[df_sprzedaz.iloc[:, 1] == -1]
+    wiersze_do_dodania.insert(6,"kolumna7", None)
+    wiersze_do_dodania.insert(7,"kolumna8", None)
+    wiersze_do_dodania.insert(8,"kolumna9", None)
+    wiersze_do_dodania.insert(9,"kolumna10", None)
+    wiersze_do_dodania.insert(10,"kolumna11", None)
     df_sprzedaz_1 = df_sprzedaz[df_sprzedaz.iloc[:, 1] == 1]
     
     # === Liczniki ===

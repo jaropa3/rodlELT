@@ -1,4 +1,5 @@
 import pandas as pd
 
-def row_adds():
-    
+def normalize_keys(df: pd.DataFrame) -> pd.DataFrame:
+    df["Key"] = df["Key"].astype(str).str.strip()
+    return df
