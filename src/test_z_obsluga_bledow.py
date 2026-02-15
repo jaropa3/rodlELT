@@ -6,6 +6,7 @@ from transform import normalize_keys
 from extract import OPEN_file
 
 
+#def main():
 
 wybrany_plik = OPEN_file()
 
@@ -31,12 +32,13 @@ try:
     df_magazyn = normalize_keys(df_magazyn)
     df_sprzedaz = normalize_keys(df_sprzedaz)
     # Filtrujemy wiersze, które chcemy dodać
-    wiersze_do_dodania = df_sprzedaz[df_sprzedaz.iloc[:, 1] == -1]
-    wiersze_do_dodania.insert(6,"kolumna7", None)
-    wiersze_do_dodania.insert(7,"kolumna8", None)
-    wiersze_do_dodania.insert(8,"kolumna9", None)
-    wiersze_do_dodania.insert(9,"kolumna10", None)
-    wiersze_do_dodania.insert(10,"kolumna11", None)
+
+    wiersze_do_dodania = df_sprzedaz[df_sprzedaz.iloc[:, 1] == -1].copy()
+    wiersze_do_dodania = wiersze_do_dodania.reindex(columns=df_sprzedaz.columns, fill_value=None)#reindex(columns=...) Pandas Ustawia dokładnie taki układ kolumn jak w df_magazyn
+
+    df_magazyn = pd.concat([df_magazyn, wiersze_do_dodania], ignore_index=True) # To jest łączenie dwóch DataFrame’ów... concat() zwraca nowy DataFrame. Dlatego: df_magazyn = ...bez tego wynik przepada... ignore_index=True — kluczowy parametr. bez duplikaty indeksów. Czyli reset indeksu. W 99% przypadków przy dokładaniu wierszy — chcesz to. 
+
+    #przerobić na funkcje
     df_sprzedaz_1 = df_sprzedaz[df_sprzedaz.iloc[:, 1] == 1]
     
     # === Liczniki ===
@@ -49,14 +51,13 @@ try:
             last_index = df_magazyn.loc[mask].index[-1]
             df_magazyn.loc[last_index, "Liczba"] = int(count)
 
-    for row in wiersze_do_dodania.itertuples(index=False):
-        df_magazyn.loc[len(df_magazyn)] = list(row)  # konwertujemy tuple na listę
-
-    # === Zapis pliku ===
+    #/przerobić na funkcje
+    
+    # === Zapis pliku === Przerobić na funkcje
     df_magazyn.to_excel(plik_wyjsciowy, sheet_name="Magazyn_po_zmianach", index=False)
     messagebox.showinfo(
     title="Zakończono",
-    message=f"✅ Plik został zapisany jako:\n\n{plik_wyjsciowy.absolute}"
+    message=f"✅ Plik został zapisany jako:\n\n{plik_wyjsciowy.absolute()}"
 )
 
 
